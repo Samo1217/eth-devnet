@@ -8,9 +8,9 @@ from kubernetes import client, config
 # -------------------------------------------------------------------
 # Config
 # -------------------------------------------------------------------
-NAMESPACE  = os.getenv("NAMESPACE",  "eth-devnet")
+NAMESPACE = os.getenv("NAMESPACE", "eth-devnet")
 DEPLOYMENT = os.getenv("DEPLOYMENT", "loadgen")
-CONTAINER  = os.getenv("CONTAINER",  "loadgen")
+CONTAINER = os.getenv("CONTAINER", "loadgen")
 
 app = FastAPI(title="Loadgen Controller")
 
@@ -22,14 +22,17 @@ except Exception:
 
 apps = client.AppsV1Api()
 
+
 # -------------------------------------------------------------------
 # K8s helpers
 # -------------------------------------------------------------------
 def get_deploy():
     return apps.read_namespaced_deployment(DEPLOYMENT, NAMESPACE)
 
+
 def _env_list(container):
     return [{"name": e.name, "value": e.value} for e in (container.env or [])]
+
 
 def _set_env(env_list, name, value):
     # upsert string value
@@ -39,6 +42,7 @@ def _set_env(env_list, name, value):
             e["value"] = value
             return
     env_list.append({"name": name, "value": value})
+
 
 def read_env():
     dep = get_deploy()
@@ -50,9 +54,10 @@ def read_env():
         "tps": int(float(env.get("TPS", "80"))),
         "concurrency": int(float(env.get("CONCURRENCY", "200"))),
         "rps_block": float(env.get("RPS_BLOCK", "0")),
-        "rps_bal":   float(env.get("RPS_BAL",   "0")),
-        "rps_call":  float(env.get("RPS_CALL",  "0")),
+        "rps_bal": float(env.get("RPS_BAL", "0")),
+        "rps_call": float(env.get("RPS_CALL", "0")),
     }
+
 
 def patch_env_simple(tps: int, conc: int, rps_block: float, rps_bal: float, rps_call: float):
     dep = get_deploy()
@@ -63,8 +68,8 @@ def patch_env_simple(tps: int, conc: int, rps_block: float, rps_bal: float, rps_
     _set_env(env_list, "TPS", tps)
     _set_env(env_list, "CONCURRENCY", conc)
     _set_env(env_list, "RPS_BLOCK", rps_block)
-    _set_env(env_list, "RPS_BAL",   rps_bal)
-    _set_env(env_list, "RPS_CALL",  rps_call)
+    _set_env(env_list, "RPS_BAL", rps_bal)
+    _set_env(env_list, "RPS_CALL", rps_call)
 
     # bump an annotation to force rollout
     anns = dep.spec.template.metadata.annotations or {}
@@ -74,13 +79,12 @@ def patch_env_simple(tps: int, conc: int, rps_block: float, rps_bal: float, rps_
         "spec": {
             "template": {
                 "metadata": {"annotations": anns},
-                "spec": {"containers": [
-                    {"name": CONTAINER, "env": env_list}
-                ]}
+                "spec": {"containers": [{"name": CONTAINER, "env": env_list}]},
             }
         }
     }
     apps.patch_namespaced_deployment(name=DEPLOYMENT, namespace=NAMESPACE, body=body)
+
 
 # -------------------------------------------------------------------
 # Preset math
@@ -106,6 +110,7 @@ def compute_mix(total_tps: float, preset: str):
     read = round(0.10 * t)
     return {"tps": send, "rps_block": read, "rps_bal": read, "rps_call": read}
 
+
 # -------------------------------------------------------------------
 # API
 # -------------------------------------------------------------------
@@ -116,22 +121,28 @@ def api_state():
     except Exception as e:
         raise HTTPException(500, f"read failed: {e}")
 
+
 @app.post("/api/set")
-def api_set(tps: int = Query(..., ge=0, le=100000),
-            concurrency: int = Query(..., ge=1, le=100000),
-            rps_block: float = Query(0.0, ge=0, le=5000),
-            rps_bal:   float = Query(0.0, ge=0, le=5000),
-            rps_call:  float = Query(0.0, ge=0, le=5000)):
+def api_set(
+    tps: int = Query(..., ge=0, le=100000),
+    concurrency: int = Query(..., ge=1, le=100000),
+    rps_block: float = Query(0.0, ge=0, le=5000),
+    rps_bal: float = Query(0.0, ge=0, le=5000),
+    rps_call: float = Query(0.0, ge=0, le=5000),
+):
     try:
         patch_env_simple(tps, concurrency, rps_block, rps_bal, rps_call)
         return {"ok": True}
     except Exception as e:
         raise HTTPException(500, f"patch failed: {e}")
 
+
 @app.post("/api/set_mix")
-def api_set_mix(total_tps: float = Query(..., ge=0, le=100000),
-                preset: str      = Query("write", regex="^(write|even)$"),
-                concurrency: int = Query(None, ge=1, le=100000)):
+def api_set_mix(
+    total_tps: float = Query(..., ge=0, le=100000),
+    preset: str = Query("write", regex="^(write|even)$"),
+    concurrency: int = Query(None, ge=1, le=100000),
+):
     """
     Accept TOTAL TPS + preset, compute per-method split server-side,
     and patch the Deployment envs (TPS, CONCURRENCY, RPS_BLOCK/BAL/CALL).
@@ -139,8 +150,10 @@ def api_set_mix(total_tps: float = Query(..., ge=0, le=100000),
     try:
         cur = read_env()
         conc = concurrency if concurrency is not None else cur["concurrency"]
-        mix  = compute_mix(total_tps, preset)
-        patch_env_simple(int(mix["tps"]), int(conc), mix["rps_block"], mix["rps_bal"], mix["rps_call"])
+        mix = compute_mix(total_tps, preset)
+        patch_env_simple(
+            int(mix["tps"]), int(conc), mix["rps_block"], mix["rps_bal"], mix["rps_call"]
+        )
         # Note: tip RPS ~= TPS implicitly, since loadgen calls eth_maxPriorityFeePerGas inside send_tx
         return {
             "ok": True,
@@ -150,13 +163,14 @@ def api_set_mix(total_tps: float = Query(..., ge=0, le=100000),
                 "TPS(send)": int(mix["tps"]),
                 "RPS(tip≈eth_maxPriorityFeePerGas)": int(mix["tps"]),
                 "RPS_BLOCK": mix["rps_block"],
-                "RPS_BAL":   mix["rps_bal"],
-                "RPS_CALL":  mix["rps_call"],
+                "RPS_BAL": mix["rps_bal"],
+                "RPS_CALL": mix["rps_call"],
                 "CONCURRENCY": int(conc),
-            }
+            },
         }
     except Exception as e:
         raise HTTPException(500, f"patch failed: {e}")
+
 
 # -------------------------------------------------------------------
 # Minimal UI
@@ -272,6 +286,7 @@ window.addEventListener('DOMContentLoaded', loadState);
 </body>
 </html>
 """
+
 
 @app.get("/", response_class=HTMLResponse)
 def index():
