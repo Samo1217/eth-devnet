@@ -2,7 +2,7 @@
 import os
 import time
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from kubernetes import client, config
 
 # -------------------------------------------------------------------

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-import os, time, asyncio, random, contextlib
+import os
+import time
+import asyncio
+import contextlib
 import httpx
 from prometheus_client import start_http_server, Counter, Gauge, Histogram
 
