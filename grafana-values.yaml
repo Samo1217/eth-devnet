@@ -29,4 +29,3 @@ sidecar:
     defaultFolderName: Loadgen
   datasources:
     enabled: true
-    

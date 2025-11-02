@@ -42,19 +42,19 @@ spec:
             - "--metrics.port=6060"
           ports:
             - name: rpc
-              containerPort: {{ .Values.service.rpcPort }}
+              containerPort: {{.Values.service.rpcPort}}
             - name: ws
-              containerPort: {{ .Values.service.wsPort }}
+              containerPort: {{.Values.service.wsPort}}
             - name: p2p
-              containerPort: {{ .Values.service.p2pPort }}
+              containerPort: {{.Values.service.p2pPort}}
             - name: metrics
               containerPort: 6060
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{toYaml .Values.resources | indent 12}}
           volumeMounts:
             - name: geth-data
-              mountPath: {{ .Values.datadir.path }}
+              mountPath: {{.Values.datadir.path}}
       volumes:
         - name: geth-data
           persistentVolumeClaim:
-            claimName: {{ .Values.datadir.pvc.name }}
+            claimName: {{.Values.datadir.pvc.name}}

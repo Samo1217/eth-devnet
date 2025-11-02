@@ -35,4 +35,3 @@ serverFiles:
           - source_labels: [__meta_kubernetes_endpoint_port_name]
             regex: metrics
             action: keep
-            

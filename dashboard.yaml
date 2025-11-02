@@ -58,7 +58,7 @@ data:
           "gridPos": {"x":12,"y":4,"w":12,"h":8},
           "targets": [
             { "expr": "sum by (method) (
-              irate(loadgen_rpc_requests_total{method!~\"eth_accounts|eth_getBlockByHash|eth_getBlockByNumber\"}[1m]))", 
+              irate(loadgen_rpc_requests_total{method!~\"eth_accounts|eth_getBlockByHash|eth_getBlockByNumber\"}[1m]))",
               "legendFormat": "{{method}}" }
           ]
         },
