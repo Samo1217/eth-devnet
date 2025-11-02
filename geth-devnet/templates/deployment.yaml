@@ -1,12 +1,13 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: geth-devnet
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   labels:
     app.kubernetes.io/name: geth-devnet
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{.Values.replicaCount}}
   strategy:
     type: Recreate
   selector:
@@ -20,7 +21,7 @@ spec:
       containers:
         - name: geth
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{.Values.image.pullPolicy}}
           args:
             - "--dev"
             - "--dev.period={{ .Values.devPeriodSeconds }}"

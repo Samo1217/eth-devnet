@@ -1,3 +1,4 @@
+---
 adminUser: admin
 adminPassword: admin123
 
@@ -28,3 +29,4 @@ sidecar:
     defaultFolderName: Loadgen
   datasources:
     enabled: true
+    
