@@ -1,0 +1,36 @@
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      # Scrape Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # Scrape Geth metrics
+      - job_name: 'geth'
+        metrics_path: /debug/metrics/prometheus
+        static_configs:
+          - targets: ['geth-devnet:6060']
+        relabel_configs:
+          - target_label: app
+            replacement: geth-devnet
+
+      # Scrape load generator (will light up once we deploy it)
+      - job_name: 'loadgen'
+        scrape_interval: 2s          # <- tighter for short-window rates
+        metrics_path: /metrics
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            regex: loadgen
+            action: keep
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            regex: metrics
+            action: keep

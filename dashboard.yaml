@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loadgen-dashboard
+  namespace: eth-devnet
+  labels:
+    grafana_dashboard: "1"
+data:
+  loadgen.json: |
+    {
+      "id": null,
+      "title": "Ethereum Load Generator",
+      "schemaVersion": 39,
+      "version": 2,
+      "tags": ["loadgen","rpc","tps"],
+      "time": { "from": "now-15m", "to": "now" },
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Achieved TPS",
+          "gridPos": {"x":0,"y":0,"w":6,"h":4},
+          "targets": [{ "expr": "loadgen_achieved_tps" }]
+        },
+        {
+          "type": "stat",
+          "title": "RPC RPS",
+          "gridPos": {"x":6,"y":0,"w":6,"h":4},
+          "targets": [{ "expr": "loadgen_rps" }]
+        },
+        {
+          "type": "stat",
+          "title": "MGas/s",
+          "gridPos": {"x":12,"y":0,"w":6,"h":4},
+          "targets": [{ "expr": "loadgen_mgas_per_s" }]
+        },
+        {
+          "type": "stat",
+          "title": "Failure Rate",
+          "gridPos": {"x":18,"y":0,"w":6,"h":4},
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "horizontal" },
+          "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } },
+          "targets": [{ "expr": "loadgen_failure_rate" }]
+        },
+        {
+          "type": "timeseries",
+          "title": "RPC Latency (p50/p90/p99)",
+          "gridPos": {"x":0,"y":4,"w":12,"h":8},
+          "targets": [
+            { "expr": "histogram_quantile(0.50, sum(irate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))", "legendFormat": "p50" },
+            { "expr": "histogram_quantile(0.90, sum(irate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))", "legendFormat": "p90" },
+            { "expr": "histogram_quantile(0.99, sum(irate(loadgen_rpc_latency_seconds_bucket[1m])) by (le))", "legendFormat": "p99" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "RPC Requests by Method (rate)",
+          "gridPos": {"x":12,"y":4,"w":12,"h":8},
+          "targets": [
+            { "expr": "sum by (method) (irate(loadgen_rpc_requests_total{method!~\"eth_accounts|eth_getBlockByHash|eth_getBlockByNumber\"}[1m]))", "legendFormat": "{{method}}" }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "TX Sent / OK / Error (per sec)",
+          "gridPos": {"x":0,"y":12,"w":24,"h":8},
+          "targets": [
+            { "expr": "irate(loadgen_tx_sent_total[1m])", "legendFormat": "sent/s" },
+            { "expr": "irate(loadgen_tx_ok_total[1m])",   "legendFormat": "ok/s" },
+            { "expr": "irate(loadgen_tx_error_total[1m])","legendFormat": "error/s" }
+          ]
+        }
+      ],
+      "templating": { "list": [] }
+    }

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: loadgen
+  namespace: eth-devnet
+  labels:
+    app: loadgen
+spec:
+  selector:
+    app: loadgen
+  ports:
+    - name: metrics
+      port: 9100
+      targetPort: metrics
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: eth-devnet
+  labels:
+    app: loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgen
+  template:
+    metadata:
+      labels:
+        app: loadgen
+    spec:
+      containers:
+        - name: loadgen
+          image: loadgen:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: metrics
+              containerPort: 9100
+          env:
+            - name: RPC_URL
+              value: "http://geth-devnet:8545"   # in-cluster Service DNS
+            - name: TPS
+              value: "80"                        # adjust later
+            - name: CONCURRENCY
+              value: "200"
+            - name: TO_ADDR
+              value: "0x62358b29b9e3e70ff51D88766e41a339D3e8FFff"
+            - name: VALUE_ETH
+              value: "0.0001"
+            - name: SAMPLE_WINDOW
+              value: "5.0"

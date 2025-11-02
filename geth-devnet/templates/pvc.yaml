@@ -1,0 +1,15 @@
+{{- if .Values.datadir.pvc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.datadir.pvc.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes: {{ toJson .Values.datadir.pvc.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.datadir.pvc.size }}
+  {{- if .Values.datadir.pvc.storageClassName }}
+  storageClassName: "{{ .Values.datadir.pvc.storageClassName }}"
+  {{- end }}
+{{- end }}

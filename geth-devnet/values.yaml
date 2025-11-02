@@ -1,0 +1,40 @@
+namespace: eth-devnet
+
+image:
+  repository: ethereum/client-go
+  tag: v1.14.11
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+devPeriodSeconds: 6
+
+datadir:
+  path: /geth
+  pvc:
+    enabled: true
+    name: geth-data
+    storageClassName: ""   # empty = use default StorageClass
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+
+service:
+  # On Docker Desktop, NodePort maps to localhost automatically
+  type: NodePort
+  rpcPort: 8545
+  wsPort: 8546
+  p2pPort: 30303
+  nodePort:
+    rpc: 30545
+    ws: 30546
+    p2p: 30333
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+rpcUrl: "http://geth-devnet:8545"
