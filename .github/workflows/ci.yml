@@ -3,10 +3,10 @@ name: CI · Lint + Build + Publish
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*.*.*' ]
+    branches: [main]
+    tags: ['v*.*.*']
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read

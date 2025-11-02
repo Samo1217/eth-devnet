@@ -13,7 +13,7 @@ metadata:
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["get","list","watch","patch","update"]
+    verbs: ["get", "list", "watch", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -37,10 +37,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: { app: loadctl }
+    matchLabels: {app: loadctl}
   template:
     metadata:
-      labels: { app: loadctl }
+      labels: {app: loadctl}
     spec:
       serviceAccountName: loadctl-sa
       containers:
@@ -48,9 +48,9 @@ spec:
           image: loadctl:dev
           imagePullPolicy: IfNotPresent
           env:
-            - { name: NAMESPACE, value: "eth-devnet" }
-            - { name: DEPLOYMENT, value: "loadgen" }
-            - { name: CONTAINER,  value: "loadgen" }
+            - {name: NAMESPACE, value: "eth-devnet"}
+            - {name: DEPLOYMENT, value: "loadgen"}
+            - {name: CONTAINER, value: "loadgen"}
           ports:
             - name: http
               containerPort: 8000
@@ -61,7 +61,7 @@ metadata:
   name: loadctl
   namespace: eth-devnet
 spec:
-  selector: { app: loadctl }
+  selector: {app: loadctl}
   type: NodePort        # 👈 this makes it accessible from your host
   ports:
     - name: http
