@@ -56,7 +56,7 @@ jobs:
           file: ./loadgen/Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${OWNER_LC}/eth-devnet-loadgen:latest
+          tags: ghcr.io/${{env.OWNER_LC}}/eth-devnet-loadgen:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -80,6 +80,6 @@ jobs:
           file: ./controller/Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/${OWNER_LC}/eth-devnet-loadctl:latest
+          tags: ghcr.io/${{env.OWNER_LC}}/eth-devnet-loadctl:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
