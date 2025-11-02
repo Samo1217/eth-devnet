@@ -3,6 +3,7 @@ extends: default
 
 ignore: |
   geth-devnet/templates/*
+  .github/workflows/*
 
 rules:
   line-length:
