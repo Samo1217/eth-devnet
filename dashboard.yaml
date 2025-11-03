@@ -57,9 +57,7 @@ data:
           "title": "RPC Requests by Method (rate)",
           "gridPos": {"x":12,"y":4,"w":12,"h":8},
           "targets": [
-            { "expr": "sum by (method) (
-              irate(loadgen_rpc_requests_total{method!~\"eth_accounts|eth_getBlockByHash|eth_getBlockByNumber\"}[1m]))",
-              "legendFormat": "{{method}}" }
+            { "expr": "sum by (method) (irate(loadgen_rpc_requests_total{method!~\"eth_accounts|eth_getBlockByHash|eth_getBlockByNumber\"}[1m]))","legendFormat": "{{method}}" }
           ]
         },
         {

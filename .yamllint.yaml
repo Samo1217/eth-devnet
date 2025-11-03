@@ -4,6 +4,7 @@ extends: default
 ignore: |
   geth-devnet/templates/*
   .github/workflows/*
+  dashboard.yaml
 
 rules:
   line-length:
