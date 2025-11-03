@@ -21,6 +21,7 @@ A self-contained Ethereum development network with full observability and config
 Your GHCR should contain:
 
 ghcr.io/samo1217/eth-devnet-loadgen:latest
+
 ghcr.io/samo1217/eth-devnet-loadctl:latest
 
 These images are built and pushed automatically via CI.
